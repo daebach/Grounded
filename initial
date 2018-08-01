@@ -1,0 +1,447 @@
+--Offense system for Magnagora
+--Written by Daebach
+--(Shout outs:
+--Kalnid: Coding assistance
+--Eicia: Secondary Coding
+--)
+
+sys = {
+	name = "Grounded",
+	version = "0.1",
+	initialize = false,
+	updated = "5/24/2018"
+}
+
+GD = {
+	me = {
+		class = string.title(gmcp.Char.Status.class),
+		tertiary = "",
+		health = gmcp.Char.Vitals.health,
+		mana = gmcp.Char.Vitals.mana,
+		ego = gmcp.Char.Vitals.ego,
+		pow = gmcp.Char.Vitals.pow,
+		support = false,
+		wonderwings = false,
+	},
+	tar = {
+		name = "",
+		health = "",
+		mana = "",
+		ego = "",
+		shield = false,
+		sleep = false,
+		protection = false,
+		truedeaf = false,
+		trueblind = false,
+		wounds = {
+			head = "",
+			chest = "",
+			gut = "",
+			LArm = "",
+			RArm = "",
+			LLeg = "",
+			RLeg = "",
+		},
+		bruising = 0,
+		bleeding = 0,
+		hemo = 0,
+	},
+	useShield = false,
+	weap = {
+		--Geomancers
+		G = "",
+		--Ur'Guard
+		U = {},
+		--Ninjakari
+		N = "",
+		--Nihilists
+		X = "",
+		--Cacophony
+		C = "",
+	},
+	beast = {
+		id = "",
+		bal = gmcp.Char.Vitals.beastbal,
+		--Use beast to heal, poison, bash, or only break shield
+		p = false,
+		b = false,
+		h = false,
+		hType = "",
+		bs = false
+	},
+	echo = function(args) cecho(string.format("\n<sienna>[<burlywood>Grounded<sienna>]<burlywood>: <SeaGreen>Info: <slate_grey>") .. args:title() .. "\n") end,
+	error = function(args) cecho(string.format("\n<sienna>[<burlywood>Error<sienna>]<burlywood>: <SeaGreen>Error on ") ..args:title() .. "\n") end,
+	useSSC = false,
+	clanChan = nil,
+}
+
+--Random All Classes
+function GD.skillsDetection()
+	for i=1, #gmcp.Char.Skills.Groups do
+		if gmcp.Char.Skills.Groups[i].name == "Glamours" then
+			GD.me.tertiary = "Glamours"
+		elseif gmcp.Char.Skills.Groups[i].name == "Tarot" then
+			GD.me.tertiary = "Tarot"
+		elseif gmcp.Char.Skills.Groups[i].name == "Dramaturgy" then
+			GD.me.tertiary = "Dramaturgy"
+		elseif gmcp.Char.Skills.Groups[i].name == "Tarot" then
+			GD.me.tertiary = "Tarot"
+		elseif gmcp.Char.Skills.Groups[i].name == "Astrology" then
+			GD.me.tertiary = "Astrology"
+		elseif gmcp.Char.Skills.Groups[i].name == "Healing" then
+			GD.me.tertiary = "Healing"
+		elseif gmcp.Char.Skills.Groups[i].name == "Runes" then
+			GD.me.tertiary = "Runes"
+		elseif gmcp.Char.Skills.Groups[i].name == "Dreamweaving" then
+			GD.me.tertiary = "Dreamweaving"
+		elseif gmcp.Char.Skills.Groups[i].name == "Telekinesis" then
+			GD.me.tertiary = "Telekinesis"
+		elseif gmcp.Char.Skills.Groups[i].name == "Telepathy" then
+			GD.me.tertiary = "Telepathy"
+		elseif gmcp.Char.Skills.Groups[i].name == "Stealth" then
+			GD.me.tertiary = "Stealth"
+		elseif gmcp.Char.Skills.Groups[i].name == "Bonecrusher" then
+			GD.me.tertiary = "Bonecrusher"
+		elseif gmcp.Char.Skills.Groups[i].name == "Axelord" then
+			GD.me.tertiary = "Axelord"
+		elseif gmcp.Char.Skills.Groups[i].name == "Pureblade" then
+			GD.me.tertiary = "Pureblade"
+		elseif gmcp.Char.Skills.Groups[i].name == "Blademaster" then
+			GD.me.tertiary = "Blademaster"
+		elseif gmcp.Char.Skills.Groups[i].name == "Cavalier" then
+			GD.me.tertiary = "Cavalier"
+		end
+	end
+	GD.echo("\n\nClass Set as: "..GD.me.class.." --- Tertiary Set as: " ..GD.me.tertiary)
+end
+
+function GD.Targets(tar)
+	GD.tar.name = tar
+	--Echo for Target Change
+	if GD.me.class == "Geomancer" then
+		for i = 1, #gmcp.Char.Skills.Groups do
+			if gmcp.Char.Skills.Groups[i] == "Geochemantics" then
+				send("fumes focus " ..tar)
+			end
+		end
+	elseif GD.me.class == "Ur'Guard" then
+		for i = 1, #gmcp.Char.Skills.Groups do
+			if gmcp.Char.Skills.Groups[i] == "Tracking" then
+				send("bond attack " ..tar)
+			end
+		end
+	elseif GD.me.class == "Nihilist" then
+		send("sm add free order entourage attack " ..tar)
+	elseif GD.tar.name == "none" or "None" then
+		send("order entourage passive")
+	end
+end
+
+function GD.beastCheck()
+	if GD.beast.bal == true then
+		if GD.beast.p == true then
+			send("sm add beast order spit " ..GD.tar.name)
+		elseif GD.beast.b == true then
+			send("beast order attack " ..GD.tar.name)
+		elseif GD.beast.bs == true and GD.tar.shield == true then
+			send("beast order attack " ..GD.tar.name)
+		elseif GD.beast.h == true then
+			send("beast order heal " ..GD.beast.hType)
+		end
+	else
+		return
+	end
+end
+
+function GD.discern()
+	if GD.me.class == ("Cacophony" or "Geomancer") then
+		send("sm add free discern " .. GD.tar.name .. " health mana ego")
+	elseif GD.me.class == "Ninjakari" then
+		send("sm add free discern " .. GD.tar.name .. " health bleeding hemorrhaging")
+	elseif GD.me.class == "Nihilist" then
+		if GD.nihi.marks == "0" then
+			send("sm add free discern " .. GD.tar.name .. " health mana ego")
+		else
+			send("sm add deathmark sense " ..GD.tar.name)
+		end
+	elseif GD.me.class == "Ur'Guard" then
+		if GD.me.tertiary == "Bonecrusher" then
+			send("sm add free discern " .. GD.tar.name .. " health bruising wounds")
+		elseif GD.me.tertiary == "Cavalier" then
+			send("sm add free discern " .. GD.tar.name .. " health bleeding bruising wounds")
+		else
+			send("sm add free discern " .. GD.tar.name .. " health bleeding wounds")
+		end
+	end
+end
+
+
+function GD.gust(tar)
+	local tar = tar or GD.target.name
+	local exits = {}
+		for k,v in pairs(gmcp.Room.Info.exits) do
+			table.insert(exits, k)
+		end
+	local dir = exits[math.random(1, #exits)]
+
+	if GD.me.wonderwings == true then
+		send("sm insert 1 wonderwings activate gust " .. tar .. " " ..dir)
+	else
+		if GD.me.class == "Geomancer" then
+			send("sm insert 1 cast gust " .. tar .. " " ..dir)
+		else
+			send("sm insert 1 point gust at " .. tar .. " " ..dir)
+		end
+	end
+end
+
+function GD.gagger()
+	selectString(line, 1) deleteLine()
+	tempLineTrigger(1, 1, [[if isPrompt() then deleteLine() end]])
+end
+
+function GD.call(message)
+	if GD.clanChan then
+		send(GD.clanChan.. " " ..message)
+	end
+end
+
+function GD.bash()
+	GD.discern()
+	if GD.me.class == "Nihilist" then
+		send("symbol strike " ..GD.tar.name)
+	elseif GD.me.class == "Geomancer" then
+		for i = 1, #gmcp.Char.Skills.Group do
+			if gmcp.Char.Skills.Group[i] == "Geomancy" then
+				send("point staff " ..GD.tar.name)
+			elseif gmcp.Char.Skills.Group[i] == "Geochemantics" then
+				send("")
+			end
+		end
+	end
+end
+
+
+--Functional Echos
+function GD.combatEcho(text, colour, width)
+	if not text then
+		text = tostring(text)
+		if not text then
+			GD.echo("\nInvalid argument #1 to GD.combatEcho(): String expected.")
+			return
+		end
+	end
+
+	text = string.gsub(text, "%a", "%1 "):sub(1, -2)
+	text = "+    +    +    " .. text:upper() .. "    +    +    +"
+	local width = width or 80
+	if #text + 4 > width then
+		width = #text + 4
+	end
+
+	local lindent = math.floor((width - #text) / 2) - 1
+	local rindent = math.ceil((width - #text) / 2) - 1
+
+	local colours = {
+		red 	= "<black:red>",
+		blue    = "<navajo_white:midnight_blue>",
+		green   = "<navajo_white:dark_green>",
+		yellow  = "<black:gold>",
+		purple  = "<navajo_white:DarkViolet>",
+		orange  = "<black:dark_orange>",
+	}
+
+	local selection = colours[colour] or colours["yellow"]
+
+	cecho("\n" .. selection .. "+" .. string.rep("-", (width - 2)) .. "+")
+	cecho("\n" .. selection .. "|" .. string.rep(" ", lindent) .. text .. string.rep(" ", rindent) .. "|")
+	cecho("\n" .. selection .. "+" .. string.rep("-", (width - 2)) .. "+")
+end
+
+--Geomancy
+GD.geo = {
+	meld = {},
+	fumes = {"ferrous", "chemical", "toxic", "taint"},
+	tank = {
+		ferrous = 0,
+		chemical = 0,
+		toxic = 0,
+		taint = 0
+	},
+	timer = "",
+	reactive = "",
+}
+
+--Setup Fumes
+function GD.fumes()
+	for i = 1, #GD.geo.fumes do
+		local c = GD.geo.fumes[i]
+		if GD.geo.fumes[c] == nil then
+			send("sm add fumes expel " ..c, false)
+			GD.geo.fumes[c] = true
+			GD.geo.fumeWeave = c
+			GD.geo.tank.c = GD.geo.tank.c - 1
+			enableTrigger("fumesBal")
+			tempTimer(60, [[GD.geo.fumes[c] = nil]])
+			break
+		end
+	end
+	if GD.geo.fumes.taint == true then
+		send("sm add fumes concentrate")
+	end
+end
+
+--Geochemantic Bombs - Reactives
+--MetalStorm - Damage (Asphyx/cutting), Paranoia, Vomiting
+--Foul - Damage (Asphyx/poison), paranoia, pox
+--Contagion - Damage (Asphyx/Poison/Cutting), contagion
+--TaintBomb - Damage (asphyx/poison/cutting), stun (Greater Effect: asthma, pox, sensitivity, rigormortis, or paranoia)
+function GD.reactives()
+	send("sm add fumes reactive " ..GD.geo.reactive)
+	GD.call("Bomb " ..string.upper(GD.geo.reactive).. " will strike in 10s")
+	if GD.geo.reactive == "Metal Storm" or "metal storm" then
+		GD.call("METALSTORM will give Damage, Paranoia, and Vomiting!!")
+		GD.geo.fumes.ferrous = nil
+		GD.geo.fumes.chemical = nil
+	elseif GD.geo.reactive == "foul" or "Foul" then
+		GD.call("FOUL will give Damage, Paranoia, and Pox!")
+		GD.geo.fumes.chemical = nil
+		GD.geo.fumes.toxic = nil
+	elseif GD.geo.reactive == "Contagion" or "contagion" then
+		GD.call("CONTAGION will give Damage and Contagion")
+		GD.geo.fumes.chemical = nil
+		GD.geo.fumes.toxic = nil
+		GD.geo.fumes.taint = nil
+	elseif GD.geo.reactive == "TaintBomb" or "Taint Bomb" or "taintbomb" or "taint bomb" then
+		GD.call("TAINT BOMB will give Damage and Stun. Needs ASTHMA, POX, SENSITIVITY, RIGORMORTIS and PARANOIA")
+		GD.geo.fumes.ferrous = nil
+		GD.geo.fumes.chemical = nil
+		GD.geo.fumes.toxic = nil
+		GD.geo.fumes.taint = nil
+	end
+	tempTimer(5, [[GD.call("Bomb " ..string.upper(GD.geo.reactive).. " will strike in 5s!")]])
+	tempTimer(9, [[GD.call("Bomb " ..string.upper(GD.geo.reactive).. " will strike in 1s!")]])
+end
+
+--Cacophony
+GD.caco = {
+	song = {
+		stanza1 = {
+			lyric = "",
+			power = "",
+		},
+	},
+
+}
+
+--Ninjakari
+GD.ninja = {
+	stance = gmcp.Char.Vitals.stance,
+	form = "",
+}
+
+function GD.kata(atk, poison1, poison2, mod)
+	mod = mod or nil
+	send("sm add free wipe jakari|envenom jakari with " ..poison1.. "|envenom jakari with " ..poison2)
+	if mod == nil then
+		send("sm add kata perform " ..GD.tar.name.. " " ..atk)
+	else
+		send("sm add kata perform " ..GD.tar.name.. " " ..atk.. " "..mod)
+	end
+end
+	
+--Nihilist
+GD.nihi = {
+	ent = false,
+	tail = {
+		bal = true,
+		poison = ""
+	},
+	marks = {
+		baalphegar = false,
+		gorgulu = false,
+		ashtorath = false,
+		nifilhema = false,
+		luciphage = false
+	},
+	sacReady = false,
+	wrackReady = false,
+	channels = false,
+	demon = "",
+	pact = "",
+	Pact = {
+		baalphegar = {"paranoia", "stupidity", "darkfate", "epilepsy", "clumsiness"},
+		gorgulu = {"darksilver", "rigormortis", "dysentery", "scabies", "asthma"},
+		ashtorath = {"blackout", "manabarbs", "recklessness", "flame", "crunch"},
+		nifilhema = {"sensitivity", "bleeding", "shackles", "slickness", "addiction"},
+		luciphage = {"dominate", "paralysis", "powersink", "healthleech", "amnesia"}
+	}
+}
+
+function GD.symbol(pow)
+	pow = pow or nil
+	if pow == nil then
+		send("sm add symbol strike " ..GD.tar.name)
+	else
+		send("sm add symbol evoke " ..pow.. " " ..GD.tar.name)
+	end
+end
+
+function GD.thrall(pow)
+	if GD.nihi.ent == false then
+		send("sm add darkcall thrall")
+		GD.nihi.ent = true
+	else
+		send("sm add darkcall thrall")
+		send("sm add free invest " ..GD.nihi.demon.. " with " ..pow)
+	end
+end
+
+function GD.seed(per)
+	if per == "me" then
+		if GD.me.pow == "10" then
+			send("darkchant lichdom")
+		else
+			GD.error("Not enough Power, Fool")
+		end
+	else	
+		if GD.me.pow >= "5" then
+			send("darkchant lichdom " ..per)
+		else
+			GD.error("Not enough Power, Fool")
+		end
+	end
+end
+
+
+
+--Tertiery
+--Psionics
+--(Needs Telepathy work added)
+function GD.psionics(chan, atk, mod)
+	local mod = mod or nil
+	if not chan or atk then
+		--Set Error message
+	end
+	if atk == "alteraura" then
+		if mod == nil then
+			GD.error("AlterAura -- MOD needs to be set as a defense")
+		else
+			send("psi " .. chan .. " alteraura " .. GD.tar.name .. " " .. mod)
+		end
+	elseif atk == "psychicfist" then
+		if mod == nil then
+			GD.error("PsychicFist -- MOD needs to be set as a bodypart")
+		else
+			send("psi " .. chan .. " psychicfist " .. GD.tar.name .. " " .. mod)
+		end
+	elseif atk == "barrier" then
+		if GD.me.pow == "10" then
+			send("psi " .. chan .. " barrier")
+		else
+			GD.error("Barrier -- Not enough Power")
+		end
+	else
+		send("psi " .. chan .. " " .. atk .. " " ..GD.tar.name)
+	end
+end
