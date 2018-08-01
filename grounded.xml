@@ -515,6 +515,72 @@ end --Grounded.loadConfig()
 --Setting Variables to their saved or default values
 if not Grounded.configged then
    Grounded:loadConfig()
+end
+
+--Grounded:default()
+function Grounded:default()
+GD = {
+	me = {
+		class = string.title(gmcp.Char.Status.class),
+		tertiary = &quot;&quot;,
+		health = gmcp.Char.Vitals.health,
+		mana = gmcp.Char.Vitals.mana,
+		ego = gmcp.Char.Vitals.ego,
+		pow = gmcp.Char.Vitals.pow,
+		support = false,
+		wonderwings = false,
+	},
+	tar = {
+		name = &quot;&quot;,
+		health = &quot;&quot;,
+		mana = &quot;&quot;,
+		ego = &quot;&quot;,
+		shield = false,
+		sleep = false,
+		protection = false,
+		truedeaf = false,
+		trueblind = false,
+		wounds = {
+			head = &quot;&quot;,
+			chest = &quot;&quot;,
+			gut = &quot;&quot;,
+			LArm = &quot;&quot;,
+			RArm = &quot;&quot;,
+			LLeg = &quot;&quot;,
+			RLeg = &quot;&quot;,
+		},
+		bruising = 0,
+		bleeding = 0,
+		hemo = 0,
+	},
+	useShield = false,
+	weap = {
+		--Geomancers
+		G = &quot;&quot;,
+		--Ur'Guard
+		U = {},
+		--Ninjakari
+		N = &quot;&quot;,
+		--Nihilists
+		X = &quot;&quot;,
+		--Cacophony
+		C = &quot;&quot;,
+	},
+	beast = {
+		id = &quot;&quot;,
+		bal = gmcp.Char.Vitals.beastbal,
+		--Use beast to heal, poison, bash, or only break shield
+		p = false,
+		b = false,
+		h = false,
+		hType = &quot;&quot;,
+		bs = false
+	},
+	echo = function(args) cecho(string.format(&quot;\n&lt;sienna&gt;[&lt;burlywood&gt;Grounded&lt;sienna&gt;]&lt;burlywood&gt;: &lt;SeaGreen&gt;Info: &lt;slate_grey&gt;&quot;) .. args:title() .. &quot;\n&quot;) end,
+	error = function(args) cecho(string.format(&quot;\n&lt;sienna&gt;[&lt;burlywood&gt;Error&lt;sienna&gt;]&lt;burlywood&gt;: &lt;SeaGreen&gt;&quot;) ..args:title() .. &quot;\n&quot;) end,
+	useSSC = false,
+	clanChan = nil,
+}
 end</script>
             <eventHandlerList/>
         </Script>
