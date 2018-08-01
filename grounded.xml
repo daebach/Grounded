@@ -1,7 +1,64 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE MudletPackage>
 <MudletPackage version="1.000">
-    <TriggerPackage/>
+    <TriggerPackage>
+        <TriggerGroup isActive="yes" isFolder="yes" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+            <name>Settings</name>
+            <script></script>
+            <triggerType>0</triggerType>
+            <conditonLineDelta>0</conditonLineDelta>
+            <mStayOpen>0</mStayOpen>
+            <mCommand></mCommand>
+            <packageName></packageName>
+            <mFgColor>#ff0000</mFgColor>
+            <mBgColor>#ffff00</mBgColor>
+            <mSoundFile></mSoundFile>
+            <colorTriggerFgColor>#000000</colorTriggerFgColor>
+            <colorTriggerBgColor>#000000</colorTriggerBgColor>
+            <regexCodeList/>
+            <regexCodePropertyList/>
+            <Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+                <name>loadSettings</name>
+                <script>Grounded:loadConfig()</script>
+                <triggerType>0</triggerType>
+                <conditonLineDelta>0</conditonLineDelta>
+                <mStayOpen>0</mStayOpen>
+                <mCommand></mCommand>
+                <packageName></packageName>
+                <mFgColor>#ff0000</mFgColor>
+                <mBgColor>#ffff00</mBgColor>
+                <mSoundFile></mSoundFile>
+                <colorTriggerFgColor>#000000</colorTriggerFgColor>
+                <colorTriggerBgColor>#000000</colorTriggerBgColor>
+                <regexCodeList>
+                    <string>Password correct. Welcome to Lusternia.</string>
+                </regexCodeList>
+                <regexCodePropertyList>
+                    <integer>3</integer>
+                </regexCodePropertyList>
+            </Trigger>
+            <Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+                <name>saveSettings</name>
+                <script>Grounded:saveConfig()</script>
+                <triggerType>0</triggerType>
+                <conditonLineDelta>0</conditonLineDelta>
+                <mStayOpen>0</mStayOpen>
+                <mCommand></mCommand>
+                <packageName></packageName>
+                <mFgColor>#ff0000</mFgColor>
+                <mBgColor>#ffff00</mBgColor>
+                <mSoundFile></mSoundFile>
+                <colorTriggerFgColor>#000000</colorTriggerFgColor>
+                <colorTriggerBgColor>#000000</colorTriggerBgColor>
+                <regexCodeList>
+                    <string>You grow still and begin to pray silently for preservation of your soul while you are out of the land.</string>
+                </regexCodeList>
+                <regexCodePropertyList>
+                    <integer>3</integer>
+                </regexCodePropertyList>
+            </Trigger>
+        </TriggerGroup>
+    </TriggerPackage>
     <TimerPackage/>
     <AliasPackage/>
     <ActionPackage/>
@@ -431,7 +488,34 @@ function GD.thrall(pow)
 		send(&quot;sm add free invest &quot; ..GD.nihi.demon.. &quot; with &quot; ..pow)
 	end
 end
-</script>
+
+--Saving settings
+function Grounded:saveConfig()
+   table.save(getMudletHomeDir() .. &quot;\\Grounded.lua&quot;, Grounded)
+   cecho(&quot;\n\n          &lt;green&gt;.oOo.     &lt;white&gt;Grounded settings SAVED!!! &lt;green&gt;    .oOo.\n&quot;)
+end --Grounded.saveconfig()
+
+
+--Loading settings from a saved table.  If a saved table doesn't exist, it instead populates with default settings from Grounded:default()
+function Grounded:loadConfig()
+   if Grounded.configged then 
+      return false 
+   end --if
+
+   local file = getMudletHomeDir() .. &quot;\\Grounded.lua&quot;
+   if not io.exists(file) then 
+      Grounded:default()
+      cecho(&quot;\n          &lt;green&gt;.oOo.     &lt;white&gt;Grounded default settings LOADED!!! &lt;green&gt;    .oOo.\n&quot;)
+   end --if
+
+   table.load(file, Grounded)
+   cecho(&quot;\n          &lt;green&gt;.oOo.     &lt;white&gt;Grounded saved settings LOADED!!! &lt;green&gt;    .oOo.\n&quot;)
+end --Grounded.loadConfig()
+
+--Setting Variables to their saved or default values
+if not Grounded.configged then
+   Grounded:loadConfig()
+end</script>
             <eventHandlerList/>
         </Script>
     </ScriptPackage>
